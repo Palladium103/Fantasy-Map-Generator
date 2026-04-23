@@ -17,7 +17,7 @@ function editRegiment(selector) {
     title: "Edit Regiment",
     resizable: false,
     close: closeEditor,
-    position: {my: "left top", at: "left+10 top+10", of: "#map"}
+    position: {my: "left top", at: "left+10 top+10", of: "#map" }
   });
 
   if (modules.editRegiment) return;
@@ -28,7 +28,8 @@ function editRegiment(selector) {
   byId("regimentType").addEventListener("click", changeType);
   byId("regimentName").addEventListener("change", changeName);
   byId("regimentEmblemChange").addEventListener("click", changeEmblem);
-  byId("regimentAttack").addEventListener("click", toggleAttack);
+  byId("regimentAttack").addEventListener("click", toggleRegimenAttack);
+  byId("burgAttack").addEventListener("click", toggleBurgAttack);
   byId("regimentRegenerateLegend").addEventListener("click", regenerateLegend);
   byId("regimentLegend").addEventListener("click", editLegend);
   byId("regimentSplit").addEventListener("click", splitRegiment);
@@ -92,7 +93,7 @@ function editRegiment(selector) {
 
   function drawRotationControl() {
     const reg = getRegiment();
-    const {x, width, y, height} = elSelected.getBBox();
+    const { x, width, y, height } = elSelected.getBBox();
 
     debug
       .append("circle")
@@ -116,7 +117,7 @@ function editRegiment(selector) {
     const reg = getRegiment();
 
     d3.event.on("drag", function () {
-      const {x, y} = d3.event;
+      const { x, y } = d3.event;
       const angle = rn(Math.atan2(y - reg.y, x - reg.x) * (180 / Math.PI), 2);
       elSelected.setAttribute("transform", `rotate(${angle})`);
       this.setAttribute("transform", `rotate(${angle})`);
@@ -244,7 +245,7 @@ function editRegiment(selector) {
       military = pack.states[state].military;
     const i = military.length ? last(military).i + 1 : 0;
     const n = +(pack.cells.h[cell] < 20); // naval or land
-    const reg = {a: 0, cell, i, n, u: {}, x, y, bx: x, by: y, state, icon: "🛡️"};
+    const reg = { a: 0, cell, i, n, u: {}, x, y, bx: x, by: y, state, icon: "🛡️" };
     reg.name = Military.getName(reg, military);
     military.push(reg);
     Military.generateNote(reg, pack.states[state]); // add legend
@@ -253,7 +254,7 @@ function editRegiment(selector) {
     toggleAdd();
   }
 
-  function toggleAttack() {
+  function toggleRegimenAttack() {
     byId("regimentAttack").classList.toggle("pressed");
     if (byId("regimentAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackRegimentOnClick);
@@ -264,6 +265,81 @@ function editRegiment(selector) {
       armies.selectAll(":scope > g").classed("draggable", true);
       viewbox.on("click", clicked).style("cursor", "default");
     }
+  }
+
+  function toggleBurgAttack() {
+    byId("burgAttack").classList.toggle("pressed");
+    if (byId("burgAttack").classList.contains("pressed")) {
+      viewbox.style("cursor", "crosshair").on("click", attackBurgOnClick);
+      tip("Click on another burg to initiate a siege", true);
+      armies.selectAll(":scope > g").classed("draggable", false);
+    } else {
+      clearMainTip();
+      armies.selectAll(":scope > g").classed("draggable", true);
+      viewbox.on("click", clicked).style("cursor", "default");
+    }
+  }
+
+  function attackBurgOnClick() {
+    const target = d3.event.target,
+      burgSelected = target.parentElement,
+      burg = burgSelected.parentElement,
+      fraternalBurg = getRegiment().state == target.getAttribute("state");
+
+    // future changes might replace "icons"
+    //if (String(burg.parentElement.id) != "armies") {
+    if (String(burg.id) != "burgIcons") {
+      tip("Please click on a burg to siege", false, "error");
+      //tip(target.getAttribute("state"), false, "error");
+      return;
+    }
+    if (burgSelected === elSelected) {
+      tip("Regiment cannot attack itself", false, "error");
+      return;
+    }
+    if (fraternalBurg) {
+      tip("Cannot attack fraternal burg", false, "error");
+      return;
+    }
+    /*
+        const attacker = getRegiment();
+        const defender = pack.states[burgSelected.dataset.state].military.find(r => r.i == burgSelected.dataset.id);
+        if (!attacker.a || !defender.a) {
+          tip("Regiment has no troops to battle", false, "error");
+          return;
+        }
+    
+        // save initial position to temp attribute
+        (attacker.px = attacker.x), (attacker.py = attacker.y);
+        (defender.px = defender.x), (defender.py = defender.y);
+    
+        // move attacker to defender
+        moveRegiment(attacker, defender.x, defender.y - 8);
+    
+        // draw battle icon
+        const attack = d3
+          .transition()
+          .delay(300)
+          .duration(700)
+          .ease(d3.easeSinInOut)
+          .on("end", () => new Battle(attacker, defender));
+        svg
+          .append("text")
+          .attr("text-rendering", "optimizeSpeed")
+          .attr("x", window.innerWidth / 2)
+          .attr("y", window.innerHeight / 2)
+          .text("⚔️")
+          .attr("font-size", 0)
+          .attr("opacity", 1)
+          .style("dominant-baseline", "central")
+          .style("text-anchor", "middle")
+          .transition(attack)
+          .attr("font-size", 1000)
+          .attr("opacity", 0.2)
+          .remove();
+    */
+    clearMainTip();
+    $("#regimentEditor").dialog("close");
   }
 
   function attackRegimentOnClick() {
@@ -437,7 +513,7 @@ function editRegiment(selector) {
     const rotationControl = debug.select("#rotationControl");
 
     d3.event.on("drag", function () {
-      const {x, y} = d3.event;
+      const { x, y } = d3.event;
       reg.x = x;
       reg.y = y;
       const x1 = rn(x - w / 2, 2);
