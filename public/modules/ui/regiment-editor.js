@@ -288,10 +288,17 @@ function editRegiment(selector) {
       burg = burgSelected.parentElement,
       isFraternalBurg = getRegiment().state == target.getAttribute("state");
 
+
     if (String(burg.id) != "burgIcons") {
-      tip("Please click on a walled or fortified burg to attack", false, "error");
+      tip("Please click on a burg to attack", false, "error");
       return;
     }
+    const burgId = Number(target.id.replace(/\D/g, ""));
+    if (pack.burgs[burgId].walls != 1 && pack.burgs[burgId].citadel != 1) {
+      tip("Please click on a castled burg or a burg that has castle to attack", false, "error");
+      return;
+    }
+
     if (burgSelected === elSelected) {
       tip("Regiment cannot attack itself", false, "error");
       return;
