@@ -13,11 +13,9 @@ class Battle {
     this.attackers = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
     this.defenders = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
 
-    this.hasCastle = false;
-    if (burg != -1)
-    {
-      this.hasCastle = Boolean(pack.burgs[burg].citadel);
-    }
+    this.hasCastle = (burg != -1) ? Boolean(pack.burgs[burg].citadel) : false;
+    this.isSiege = burg != -1;
+
     this.addHeaders();
     this.addRegiment("attackers", attacker);
     this.addRegiment("defenders", defender);
@@ -69,6 +67,7 @@ class Battle {
   }
 
   defineType() {
+
     const attacker = this.attackers.regiments[0];
     const defender = this.defenders.regiments[0];
     const getType = () => {
@@ -78,7 +77,7 @@ class Battle {
       if (attacker.n && defender.n) return "naval"; // attacker and defender are navals
       if (typesA.every(t => t === "aviation") && typesD.every(t => t === "aviation")) return "air"; // if attackers and defender have only aviation units
       if (attacker.n && !defender.n && typesA.some(t => t !== "naval")) return "landing"; // if attacked is naval with non-naval units and defender is not naval
-      if (!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls) return "siege"; // defender is in walled town
+      if ((!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls) || this.isSiege) return "siege"; // defender is in walled town
       if (P(0.1) && [5, 6, 7, 8, 9, 12].includes(pack.cells.biome[this.cell])) return "ambush"; // 20% if defenders are in forest or marshes
       return "field";
     };
