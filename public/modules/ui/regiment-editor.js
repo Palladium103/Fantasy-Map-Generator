@@ -28,7 +28,7 @@ function editRegiment(selector) {
   byId("regimentType").addEventListener("click", changeType);
   byId("regimentName").addEventListener("change", changeName);
   byId("regimentEmblemChange").addEventListener("click", changeEmblem);
-  byId("regimentAttack").addEventListener("click", toggleRegimenAttack);
+  byId("regimentAttack").addEventListener("click", toggleRegimentAttack);
   byId("regimentBurgAttack").addEventListener("click", toggleBurgAttack);
   byId("regimentRegenerateLegend").addEventListener("click", regenerateLegend);
   byId("regimentLegend").addEventListener("click", editLegend);
@@ -299,7 +299,7 @@ function editRegiment(selector) {
       return;
     }
 
-    if (pack.burgs[burgId].type != "Naval" && getRegiment().icon == "🌊") {
+    if (pack.burgs[burgId].type != "Naval" && getRegiment().n) {
       tip("Burg is too far from sea, regiment cannot engage. Please choose a burg near the shoreline.", false, "error");
       return;
     }

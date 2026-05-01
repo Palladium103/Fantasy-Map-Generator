@@ -17,11 +17,8 @@ class Battle {
     this.hasCastle = false;
     if (burg != -1)
     {
-      this.hasCastle = pack.burgs[burg].citadel; 
+      this.hasCastle = Boolean(pack.burgs[burg].citadel);
     }
-
-    console.log(this.hasCastle);
-
     this.addHeaders();
     this.addRegiment("attackers", attacker);
     this.addRegiment("defenders", defender);
@@ -485,7 +482,6 @@ class Battle {
     const adjuster = Math.max(populationRate / 10, 10); // population adjuster, by default 100
     this[side].power =
       d3.sum(options.military.map(u => (forces[u.name] || 0) * u.power * scheme[phase][u.type])) / adjuster;
-      console.log(scheme.blockade.melee);
     const UIvalue = this[side].power ? Math.max(this[side].power | 0, 1) : 0;
     byId("battlePower_" + side).innerHTML = UIvalue;
   }
