@@ -13,15 +13,15 @@ function editHeightmap(options) {
   modules.editHeightmap = true;
 
   // add listeners
-  byId("paintBrushes").on("click", openBrushesPanel);
-  byId("applyTemplate").on("click", openTemplateEditor);
-  byId("convertImage").on("click", openImageConverter);
-  byId("heightmapPreview").on("click", toggleHeightmapPreview);
-  byId("heightmap3DView").on("click", changeViewMode);
-  byId("finalizeHeightmap").on("click", finalizeHeightmap);
-  byId("renderOcean").on("click", mockHeightmap);
-  byId("templateUndo").on("click", () => restoreHistory(edits.n - 1));
-  byId("templateRedo").on("click", () => restoreHistory(edits.n + 1));
+  ensureEl("paintBrushes").on("click", openBrushesPanel);
+  ensureEl("applyTemplate").on("click", openTemplateEditor);
+  ensureEl("convertImage").on("click", openImageConverter);
+  ensureEl("heightmapPreview").on("click", toggleHeightmapPreview);
+  ensureEl("heightmap3DView").on("click", changeViewMode);
+  ensureEl("finalizeHeightmap").on("click", finalizeHeightmap);
+  ensureEl("renderOcean").on("click", mockHeightmap);
+  ensureEl("templateUndo").on("click", () => restoreHistory(edits.n - 1));
+  ensureEl("templateRedo").on("click", () => restoreHistory(edits.n + 1));
 
   function showModeDialog() {
     alertMessage.innerHTML = /* html */ `Heightmap is a core element on which all other data (rivers, burgs, states etc) is based. So the best edit approach is to
@@ -52,20 +52,20 @@ function editHeightmap(options) {
 
   function enterHeightmapEditMode(mode) {
     editHeightmap.layers = Array.from(mapLayers.querySelectorAll("li:not(.buttonoff)")).map(node => node.id); // store layers preset
-    editHeightmap.layers.forEach(l => byId(l).click()); // turn off all layers
+    editHeightmap.layers.forEach(l => ensureEl(l).click()); // turn off all layers
 
     customization = 1;
     closeDialogs();
     tip('Heightmap edit mode is active. Click on "Exit Customization" to finalize the heightmap', true);
 
-    byId("options")
+    ensureEl("options")
       .querySelectorAll(".tabcontent")
       .forEach(tabcontent => {
         tabcontent.style.display = "none";
       });
-    byId("options").querySelector(".tab > .active").classList.remove("active");
-    byId("customizationMenu").style.display = "block";
-    byId("toolsTab").classList.add("active");
+    ensureEl("options").querySelector(".tab > .active").classList.remove("active");
+    ensureEl("customizationMenu").style.display = "block";
+    ensureEl("toolsTab").classList.add("active");
     heightmapEditMode.innerHTML = mode;
 
     if (mode === "erase") {
@@ -132,11 +132,16 @@ function editHeightmap(options) {
     if (tooltip.dataset.main) showMainTip();
 
     // move radius circle if drag mode is active
-    const pressed = byId("brushesButtons").querySelector("button.pressed");
+    const pressed = ensureEl("brushesButtons").querySelector("button.pressed");
     if (!pressed) return;
 
     if (pressed.id === "brushLine") {
       debug.select("line").attr("x2", x).attr("y2", y);
+      return;
+    }
+
+    if (pressed.id === "brushFill") {
+      removeCircle();
       return;
     }
 
@@ -162,7 +167,7 @@ function editHeightmap(options) {
   function finalizeHeightmap() {
     if (viewbox.select("#heights").selectAll("*").size() < 200)
       return tip("Insufficient land area. There should be at least 200 land cells!", null, "error");
-    if (byId("imageConverter").offsetParent) return tip("Please exit the Image Conversion mode first", null, "error");
+    if (ensureEl("imageConverter").offsetParent) return tip("Please exit the Image Conversion mode first", null, "error");
 
     delete window.edits; // remove global variable
     redo.disabled = templateRedo.disabled = true;
@@ -170,7 +175,7 @@ function editHeightmap(options) {
 
     customization = 0;
     customizationMenu.style.display = "none";
-    if (byId("options").querySelector(".tab > button.active").id === "toolsTab") toolsContent.style.display = "block";
+    if (ensureEl("options").querySelector(".tab > button.active").id === "toolsTab") toolsContent.style.display = "block";
     layersPreset.disabled = false;
     exitCustomization.style.display = "none"; // hide finalize button
 
@@ -179,8 +184,8 @@ function editHeightmap(options) {
     closeDialogs();
     resetZoom();
 
-    if (byId("preview")) byId("preview").remove();
-    if (byId("canvas3d")) enterStandardView();
+    if (ensureEl("preview")) ensureEl("preview").remove();
+    if (ensureEl("canvas3d")) enterStandardView();
 
     const mode = heightmapEditMode.innerHTML;
     if (mode === "erase") regenerateErasedData();
@@ -537,8 +542,8 @@ function editHeightmap(options) {
 
   function updateStatistics() {
     const landCells = grid.cells.h.reduce((s, h) => (h >= 20 ? s + 1 : s));
-    byId("landmassCounter").innerText = `${landCells} (${rn((landCells / grid.cells.i.length) * 100)}%)`;
-    byId("landmassAverage").innerText = rn(d3.mean(grid.cells.h));
+    ensureEl("landmassCounter").innerText = `${landCells} (${rn((landCells / grid.cells.i.length) * 100)}%)`;
+    ensureEl("landmassAverage").innerText = rn(d3.mean(grid.cells.h));
   }
 
   function updateHistory(noStat) {
@@ -551,8 +556,8 @@ function editHeightmap(options) {
     redo.disabled = templateRedo.disabled = true;
     if (!noStat) {
       updateStatistics();
-      if (byId("preview")) drawHeightmapPreview(); // update heightmap preview if opened
-      if (byId("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
+      if (ensureEl("preview")) drawHeightmapPreview(); // update heightmap preview if opened
+      if (ensureEl("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
     }
   }
 
@@ -566,8 +571,8 @@ function editHeightmap(options) {
     mockHeightmap();
     updateStatistics();
 
-    if (byId("preview")) drawHeightmapPreview(); // update heightmap preview if opened
-    if (byId("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
+    if (ensureEl("preview")) drawHeightmapPreview(); // update heightmap preview if opened
+    if (ensureEl("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
   }
 
   // restart edits from 1st step
@@ -593,31 +598,31 @@ function editHeightmap(options) {
     modules.openBrushesPanel = true;
 
     // add listeners
-    byId("brushesButtons").on("click", e => toggleBrushMode(e));
-    byId("cellTypeFilter").on("change", cellTypeFilterChange);
-    byId("undo").on("click", () => restoreHistory(edits.n - 1));
-    byId("redo").on("click", () => restoreHistory(edits.n + 1));
-    byId("rescaleShow").on("click", () => {
-      byId("modifyButtons").style.display = "none";
-      byId("rescaleSection").style.display = "block";
+    ensureEl("brushesButtons").on("click", e => toggleBrushMode(e));
+    ensureEl("cellTypeFilter").on("change", cellTypeFilterChange);
+    ensureEl("undo").on("click", () => restoreHistory(edits.n - 1));
+    ensureEl("redo").on("click", () => restoreHistory(edits.n + 1));
+    ensureEl("rescaleShow").on("click", () => {
+      ensureEl("modifyButtons").style.display = "none";
+      ensureEl("rescaleSection").style.display = "block";
     });
-    byId("rescaleHide").on("click", () => {
-      byId("modifyButtons").style.display = "block";
-      byId("rescaleSection").style.display = "none";
+    ensureEl("rescaleHide").on("click", () => {
+      ensureEl("modifyButtons").style.display = "block";
+      ensureEl("rescaleSection").style.display = "none";
     });
-    byId("rescaler").on("change", e => rescale(e.target.valueAsNumber));
-    byId("rescaleCondShow").on("click", () => {
-      byId("modifyButtons").style.display = "none";
-      byId("rescaleCondSection").style.display = "block";
+    ensureEl("rescaler").on("change", e => rescale(e.target.valueAsNumber));
+    ensureEl("rescaleCondShow").on("click", () => {
+      ensureEl("modifyButtons").style.display = "none";
+      ensureEl("rescaleCondSection").style.display = "block";
     });
-    byId("rescaleCondHide").on("click", () => {
-      byId("modifyButtons").style.display = "block";
-      byId("rescaleCondSection").style.display = "none";
+    ensureEl("rescaleCondHide").on("click", () => {
+      ensureEl("modifyButtons").style.display = "block";
+      ensureEl("rescaleCondSection").style.display = "none";
     });
-    byId("rescaleExecute").on("click", rescaleWithCondition);
-    byId("smoothHeights").on("click", smoothAllHeights);
-    byId("disruptHeights").on("click", disruptAllHeights);
-    byId("brushClear").on("click", startFromScratch);
+    ensureEl("rescaleExecute").on("click", rescaleWithCondition);
+    ensureEl("smoothHeights").on("click", smoothAllHeights);
+    ensureEl("disruptHeights").on("click", disruptAllHeights);
+    ensureEl("brushClear").on("click", startFromScratch);
 
     function exitBrushMode() {
       const pressed = document.querySelector("#brushesButtons > button.pressed");
@@ -627,28 +632,38 @@ function editHeightmap(options) {
       debug.selectAll(".lineCircle").remove();
       removeCircle();
 
-      byId("brushesSliders").style.display = "none";
-      byId("lineSlider").style.display = "none";
+      ensureEl("brushesSliders").style.display = "none";
+      ensureEl("lineSlider").style.display = "none";
     }
 
-    const dragBrushThrottled = throttle(dragBrush, 100);
-
     function toggleBrushMode(event) {
-      if (event.target.classList.contains("pressed")) {
+      const button = event.target.closest("#brushesButtons > button");
+      if (!button) return;
+
+      if (button.classList.contains("pressed")) {
         exitBrushMode();
         return;
       }
 
       exitBrushMode();
-      event.target.classList.add("pressed");
+      button.classList.add("pressed");
+      toggleFillBrushUi(button.id === "brushFill");
 
-      if (event.target.id === "brushLine") {
-        byId("lineSlider").style.display = "block";
+      if (button.id === "brushLine") {
+        ensureEl("lineSlider").style.display = "block";
         viewbox.style("cursor", "crosshair").on("click", placeLinearFeature);
+      } else if (button.id === "brushFill") {
+        ensureEl("brushesSliders").style.display = "block";
+        viewbox.style("cursor", "crosshair").on("click", applyFillBrush);
       } else {
-        byId("brushesSliders").style.display = "block";
-        viewbox.style("cursor", "crosshair").call(d3.drag().on("start", dragBrushThrottled));
+        ensureEl("brushesSliders").style.display = "block";
+        viewbox.style("cursor", "crosshair").call(d3.drag().on("start", dragBrush));
       }
+    }
+
+    function toggleFillBrushUi(isFillBrush) {
+      const radiusRow = ensureEl("heightmapBrushRadius").parentElement;
+      if (radiusRow) radiusRow.style.display = isFillBrush ? "none" : "";
     }
 
     function placeLinearFeature() {
@@ -677,7 +692,7 @@ function editHeightmap(options) {
       const fromCell = +lineCircle.attr("data-cell");
       debug.selectAll("*").remove();
 
-      const power = byId("heightmapLinePower").valueAsNumber;
+      const power = ensureEl("heightmapLinePower").valueAsNumber;
       if (power === 0) return tip("Power should not be zero", false, "error");
 
       const heights = grid.cells.h;
@@ -700,6 +715,106 @@ function editHeightmap(options) {
 
       mockHeightmapSelection(selection);
       updateHistory();
+    }
+
+    function applyFillBrush() {
+      const [x, y] = d3.mouse(this);
+      const start = findGridCell(x, y, grid);
+      const startHeight = grid.cells.h[start];
+      const isWaterFill = startHeight < 20;
+      const MIN_FILL_CELLS = 3;
+
+      if (cellTypeFilter.value === "water")
+        return tip("Fill brush is not available with 'only water cells' filter", false, "error");
+      if (cellTypeFilter.value === "land" && isWaterFill)
+        return tip("Land filter is active, water areas cannot be filled", false, "error");
+
+      const {selection, reachedBorder} = collectFillSelection(start, isWaterFill, startHeight);
+      if (selection.length < MIN_FILL_CELLS) return tip("No enclosed area found to fill", false, "error");
+      if (isWaterFill && reachedBorder)
+        return tip("Selected water area is open to map border and is not enclosed", false, "error");
+
+      const changed = applyConeToSelection(selection, isWaterFill, startHeight);
+      if (!changed.length) return;
+
+      mockHeightmapSelection(changed);
+      updateHeightmap();
+    }
+
+    function collectFillSelection(start, isWaterFill, targetHeight) {
+      const {h: heights, c: neighbors, i: cells} = grid.cells;
+      const visited = new Uint8Array(cells.length);
+      const stack = [start];
+      const selection = [];
+      let reachedBorder = false;
+
+      while (stack.length) {
+        const cell = stack.pop();
+        if (visited[cell]) continue;
+        visited[cell] = 1;
+
+        if (!matchesFillTarget(heights[cell], isWaterFill, targetHeight)) continue;
+
+        selection.push(cell);
+        if (grid.cells.b[cell]) reachedBorder = true;
+        neighbors[cell].forEach(next => {
+          if (!visited[next]) stack.push(next);
+        });
+      }
+
+      return {selection, reachedBorder};
+    }
+
+    function matchesFillTarget(height, isWaterFill, targetHeight) {
+      return isWaterFill ? height < 20 : height === targetHeight;
+    }
+
+    function applyConeToSelection(selection, isWaterFill, targetHeight) {
+      const power = heightmapBrushPower.valueAsNumber * 10;
+      const {h: heights, c: neighbors, i: cells} = grid.cells;
+      const inSelection = new Uint8Array(cells.length);
+      const edgeDistance = new Uint16Array(cells.length);
+      const changed = [];
+
+      selection.forEach(cell => {
+        inSelection[cell] = 1;
+      });
+
+      // Multi-source BFS from area edge gives each cell distance from edge.
+      const queue = [];
+      let head = 0;
+      selection.forEach(cell => {
+        const isEdgeCell = neighbors[cell].some(next => !inSelection[next]);
+        if (!isEdgeCell) return;
+        inSelection[cell] = 2;
+        queue.push(cell);
+      });
+
+      while (head < queue.length) {
+        const cell = queue[head++];
+        const nextDistance = edgeDistance[cell] + 1;
+        neighbors[cell].forEach(next => {
+          if (inSelection[next] !== 1) return;
+          inSelection[next] = 2;
+          edgeDistance[next] = nextDistance;
+          queue.push(next);
+        });
+      }
+
+      const maxDistance = d3.max(selection, cell => edgeDistance[cell]) || 0;
+      const baseHeight = isWaterFill ? 20 : targetHeight;
+
+      selection.forEach(cell => {
+        const ratio = maxDistance ? edgeDistance[cell] / maxDistance : 1;
+        const rise = Math.max(1, Math.round(power * ratio));
+        const nextHeight = minmax(baseHeight + rise, 0, 100);
+        if (nextHeight === heights[cell]) return;
+
+        heights[cell] = nextHeight;
+        changed.push(cell);
+      });
+
+      return changed;
     }
 
     function dragBrush() {
@@ -732,7 +847,8 @@ function editHeightmap(options) {
       const heights = grid.cells.h;
 
       const brush = document.querySelector("#brushesButtons > button.pressed").id;
-      if (brush === "brushRaise") selection.forEach(i => (heights[i] = !ocean && heights[i] < 20 ? 20 : lim(heights[i] + power)));
+      if (brush === "brushRaise")
+        selection.forEach(i => (heights[i] = !ocean && heights[i] < 20 ? 20 : lim(heights[i] + power)));
       else if (brush === "brushElevate")
         selection.forEach(
           (i, d) => (heights[i] = lim(heights[i] + interpolate(d / Math.max(selection.length - 1, 1))))
@@ -747,7 +863,11 @@ function editHeightmap(options) {
         selection.forEach(
           i =>
             (heights[i] = rn(
-              (d3.mean(grid.cells.c[i].filter(c => (land ? heights[c] >= 20 : ocean ? heights[c] < 20 : 1)).map(c => heights[c])) +
+              (d3.mean(
+                grid.cells.c[i]
+                  .filter(c => (land ? heights[c] >= 20 : ocean ? heights[c] < 20 : 1))
+                  .map(c => heights[c])
+              ) +
                 heights[i] * (10 - power) +
                 0.6) /
                 (11 - power),
@@ -780,7 +900,7 @@ function editHeightmap(options) {
         return ocean ? Math.min(newH, 19) : newH;
       });
       updateHeightmap();
-      byId("rescaler").value = 0;
+      ensureEl("rescaler").value = 0;
     }
 
     function rescaleWithCondition() {
@@ -816,8 +936,10 @@ function editHeightmap(options) {
     }
 
     function startFromScratch() {
-      if (cellTypeFilter.value === "land") return tip("Not allowed when 'only land cells' filter is set", false, "error");
-      if (cellTypeFilter.value === "water") return tip("Not allowed when 'only water cells' filter is set", false, "error");
+      if (cellTypeFilter.value === "land")
+        return tip("Not allowed when 'only land cells' filter is set", false, "error");
+      if (cellTypeFilter.value === "water")
+        return tip("Not allowed when 'only water cells' filter is set", false, "error");
       const someHeights = grid.cells.h.some(h => h);
       if (!someHeights)
         return tip("Heightmap is already cleared, please do not click twice if not required", false, "error");
@@ -830,7 +952,7 @@ function editHeightmap(options) {
 
   function openTemplateEditor() {
     if ($("#templateEditor").is(":visible")) return;
-    const $body = byId("templateBody");
+    const $body = ensureEl("templateBody");
 
     $("#templateEditor").dialog({
       title: "Template Editor",
@@ -872,31 +994,31 @@ function editHeightmap(options) {
       }
     });
 
-    byId("templateEditor").on("keypress", event => {
+    ensureEl("templateEditor").on("keypress", event => {
       if (event.key === "Enter") {
         event.preventDefault();
         executeTemplate();
       }
     });
 
-    byId("templateTools").on("click", addStepOnClick);
-    byId("templateSelect").on("change", selectTemplate);
-    byId("templateRun").on("click", executeTemplate);
-    byId("templateSave").on("click", downloadTemplate);
-    byId("templateLoad").on("click", () => templateToLoad.click());
-    byId("templateToLoad").on("change", function () {
+    ensureEl("templateTools").on("click", addStepOnClick);
+    ensureEl("templateSelect").on("change", selectTemplate);
+    ensureEl("templateRun").on("click", executeTemplate);
+    ensureEl("templateSave").on("click", downloadTemplate);
+    ensureEl("templateLoad").on("click", () => templateToLoad.click());
+    ensureEl("templateToLoad").on("change", function () {
       uploadFile(this, uploadTemplate);
     });
 
     function addStepOnClick(e) {
       if (e.target.tagName !== "BUTTON") return;
       const type = e.target.dataset.type;
-      byId("templateBody").dataset.changed = 1;
+      ensureEl("templateBody").dataset.changed = 1;
       addStep(type);
     }
 
     function addStep(type, count, dist, arg4, arg5) {
-      const $body = byId("templateBody");
+      const $body = ensureEl("templateBody");
       $body.insertAdjacentHTML("beforeend", getStepHTML(type, count, dist, arg4, arg5));
 
       const $elDist = $body.querySelector("div:last-child > span > .templateDist");
@@ -1037,7 +1159,7 @@ function editHeightmap(options) {
     }
 
     function selectTemplate(e) {
-      const body = byId("templateBody");
+      const body = ensureEl("templateBody");
       const steps = body.querySelectorAll("div").length;
       const changed = +body.getAttribute("data-changed");
       const template = e.target.value;
@@ -1060,7 +1182,7 @@ function editHeightmap(options) {
     }
 
     function changeTemplate(template) {
-      const body = byId("templateBody");
+      const body = ensureEl("templateBody");
       body.setAttribute("data-changed", 0);
       body.innerHTML = "";
 
@@ -1077,13 +1199,13 @@ function editHeightmap(options) {
     }
 
     function executeTemplate() {
-      const steps = byId("templateBody").querySelectorAll("#templateBody > div");
+      const steps = ensureEl("templateBody").querySelectorAll("#templateBody > div");
       if (!steps.length) return;
 
-      const currentSeed = byId("templateSeed").value;
+      const currentSeed = ensureEl("templateSeed").value;
       const seed = (locked("templateSeed") && currentSeed) || generateSeed();
       Math.random = aleaPRNG(seed);
-      byId("templateSeed").value = seed;
+      ensureEl("templateSeed").value = seed;
 
       grid.cells.h = createTypedArray({maxValue: 100, length: grid.points.length});
       HeightmapGenerator.setGraph(grid);
@@ -1117,12 +1239,12 @@ function editHeightmap(options) {
       grid.cells.h = HeightmapGenerator.getHeights();
       updateStatistics();
       mockHeightmap();
-      if (byId("preview")) drawHeightmapPreview(); // update heightmap preview if opened
-      if (byId("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
+      if (ensureEl("preview")) drawHeightmapPreview(); // update heightmap preview if opened
+      if (ensureEl("canvas3d")) ThreeD.redraw(); // update 3d heightmap preview if opened
     }
 
     function downloadTemplate() {
-      const body = byId("templateBody");
+      const body = ensureEl("templateBody");
       body.dataset.changed = 0;
       const steps = body.querySelectorAll("#templateBody > div");
       if (!steps.length) return;
@@ -1207,18 +1329,18 @@ function editHeightmap(options) {
     })();
 
     // add listeners
-    byId("convertImageLoad").on("click", () => imageToLoad.click());
-    byId("imageToLoad").on("change", loadImage);
-    byId("convertAutoLum").on("click", () => autoAssing("lum"));
-    byId("convertAutoHue").on("click", () => autoAssing("hue"));
-    byId("convertAutoFMG").on("click", () => autoAssing("scheme"));
-    byId("convertColorsButton").on("click", setConvertColorsNumber);
-    byId("convertComplete").on("click", applyConversion);
-    byId("convertCancel").on("click", cancelConversion);
-    byId("convertOverlay").on("input", function () {
+    ensureEl("convertImageLoad").on("click", () => imageToLoad.click());
+    ensureEl("imageToLoad").on("change", loadImage);
+    ensureEl("convertAutoLum").on("click", () => autoAssing("lum"));
+    ensureEl("convertAutoHue").on("click", () => autoAssing("hue"));
+    ensureEl("convertAutoFMG").on("click", () => autoAssing("scheme"));
+    ensureEl("convertColorsButton").on("click", setConvertColorsNumber);
+    ensureEl("convertComplete").on("click", applyConversion);
+    ensureEl("convertCancel").on("click", cancelConversion);
+    ensureEl("convertOverlay").on("input", function () {
       setOverlayOpacity(this.value);
     });
-    byId("convertOverlayNumber").on("input", function () {
+    ensureEl("convertOverlayNumber").on("input", function () {
       setOverlayOpacity(this.value);
     });
 
@@ -1242,7 +1364,7 @@ function editHeightmap(options) {
       document.body.appendChild(img);
 
       img.onload = function () {
-        const ctx = byId("canvas").getContext("2d");
+        const ctx = ensureEl("canvas").getContext("2d");
         ctx.drawImage(img, 0, 0, graphWidth, graphHeight);
         heightsFromImage(+convertColors.value);
         resetZoom();
@@ -1253,7 +1375,7 @@ function editHeightmap(options) {
     }
 
     function heightsFromImage(count) {
-      const sourceImage = byId("canvas");
+      const sourceImage = ensureEl("canvas");
       const sampleCanvas = document.createElement("canvas");
       sampleCanvas.width = grid.cellsX;
       sampleCanvas.height = grid.cellsY;
@@ -1292,7 +1414,7 @@ function editHeightmap(options) {
         .attr("class", "color-div")
         .on("click", colorClicked);
 
-      byId("colorsUnassignedNumber").innerHTML = colors.length;
+      ensureEl("colorsUnassignedNumber").innerHTML = colors.length;
     }
 
     function mapClicked() {
@@ -1349,8 +1471,8 @@ function editHeightmap(options) {
         colorsAssignedContainer.appendChild(selectedColor);
         colorsAssigned.style.display = "block";
 
-        byId("colorsUnassignedNumber").innerHTML = colorsUnassignedContainer.childElementCount - 2;
-        byId("colorsAssignedNumber").innerHTML = colorsAssignedContainer.childElementCount - 2;
+        ensureEl("colorsUnassignedNumber").innerHTML = colorsUnassignedContainer.childElementCount - 2;
+        ensureEl("colorsAssignedNumber").innerHTML = colorsAssignedContainer.childElementCount - 2;
       }
     }
 
@@ -1416,7 +1538,7 @@ function editHeightmap(options) {
 
       colorsAssigned.style.display = "block";
       colorsUnassigned.style.display = "none";
-      byId("colorsAssignedNumber").innerHTML = colorsAssignedContainer.childElementCount - 2;
+      ensureEl("colorsAssignedNumber").innerHTML = colorsAssignedContainer.childElementCount - 2;
     }
 
     function setConvertColorsNumber() {
@@ -1432,7 +1554,7 @@ function editHeightmap(options) {
 
     function setOverlayOpacity(v) {
       convertOverlay.value = convertOverlayNumber.value = v;
-      byId("canvas").style.opacity = v;
+      ensureEl("canvas").style.opacity = v;
     }
 
     function applyConversion() {
@@ -1460,10 +1582,10 @@ function editHeightmap(options) {
     }
 
     function restoreImageConverterState() {
-      const canvas = byId("canvas");
+      const canvas = ensureEl("canvas");
       if (canvas) canvas.remove();
 
-      const image = byId("imageToConvert");
+      const image = ensureEl("imageToConvert");
       if (image) image.remove();
 
       d3.select("#imageConverter").selectAll("div.color-div").remove();
@@ -1479,8 +1601,8 @@ function editHeightmap(options) {
     function closeImageConverter(event) {
       event.preventDefault();
       event.stopPropagation();
-      alertMessage.innerHTML = /* html */ ` Are you sure you want to close the Image Converter? Click "Cancel" to geck back to convertion. Click "Complete" to apply
-      the conversion. Click "Close" to exit conversion mode and restore previous heightmap`;
+      alertMessage.innerHTML = /* html */ `Are you sure you want to close the Image Converter? Click "Cancel" to keep editing. Click "Complete" to apply
+      the conversion and close the tool. Click "Close" to discard the conversion and restore the previous heightmap.`;
 
       $("#alert").dialog({
         resizable: false,
@@ -1505,8 +1627,8 @@ function editHeightmap(options) {
   }
 
   function toggleHeightmapPreview() {
-    if (byId("preview")) {
-      byId("preview").remove();
+    if (ensureEl("preview")) {
+      ensureEl("preview").remove();
       return;
     }
     const preview = document.createElement("canvas");
@@ -1520,7 +1642,7 @@ function editHeightmap(options) {
   }
 
   function drawHeightmapPreview() {
-    const ctx = byId("preview").getContext("2d");
+    const ctx = ensureEl("preview").getContext("2d");
     const imageData = ctx.createImageData(grid.cellsX, grid.cellsY);
 
     grid.cells.h.forEach((height, i) => {
@@ -1538,7 +1660,7 @@ function editHeightmap(options) {
   }
 
   function downloadPreview() {
-    const preview = byId("preview");
+    const preview = ensureEl("preview");
     const dataURL = preview.toDataURL("image/png");
 
     const img = new Image();
