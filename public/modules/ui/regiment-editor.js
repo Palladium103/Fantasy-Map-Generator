@@ -255,7 +255,7 @@ function editRegiment(selector) {
   }
 
   function toggleRegimenAttack() {
-    byId("burgAttack").classList.remove("pressed");
+    byId("regimentBurgAttack").classList.remove("pressed");
     byId("regimentAttack").classList.toggle("pressed");
     if (byId("regimentAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackRegimentOnClick);
@@ -270,8 +270,8 @@ function editRegiment(selector) {
 
   function toggleBurgAttack() {
     byId("regimentAttack").classList.remove("pressed");
-    byId("burgAttack").classList.toggle("pressed");
-    if (byId("burgAttack").classList.contains("pressed")) {
+    byId("regimentBurgAttack").classList.toggle("pressed");
+    if (byId("regimentBurgAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackBurgOnClick);
       tip("Click on another burg to initiate a siege", true);
       armies.selectAll(":scope > g").classed("draggable", false);
@@ -314,7 +314,8 @@ function editRegiment(selector) {
     }
 
     const attacker = getRegiment();
-    const burgStateRegiments = pack.states[target.getAttribute("state")].military;
+    const burgStateId = Number(pack.burgs[burgId].state);
+    const burgStateRegiments = pack.states[burgStateId].military;
     const defendingBurg = target;
 
     let closestRegimentIndex = 0;
@@ -601,7 +602,7 @@ function editRegiment(selector) {
     armies.selectAll("g>g").call(d3.drag().on("drag", null));
     byId("regimentAdd").classList.remove("pressed");
     byId("regimentAttack").classList.remove("pressed");
-    byId("burgAttack").classList.remove("pressed");
+    byId("regimentBurgAttack").classList.remove("pressed");
     byId("regimentAttach").classList.remove("pressed");
     restoreDefaultEvents();
     elSelected = null;

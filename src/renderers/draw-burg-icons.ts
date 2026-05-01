@@ -30,7 +30,7 @@ const burgIconsRenderer = (): void => {
     iconsGroup.innerHTML = burgsInGroup
       .map(
         (b) =>
-          `<use id="burg${b.i}" data-id="${b.i}" state="${b.state}" href="${icon}" x="${b.x}" y="${b.y}"></use>`,
+          `<use id="burg${b.i}" data-id="${b.i}" href="${icon}" x="${b.x}" y="${b.y}"></use>`,
       )
       .join("");
 
