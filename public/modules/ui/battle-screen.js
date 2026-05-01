@@ -17,11 +17,8 @@ class Battle {
     this.hasCastle = false;
     if (burg != -1)
     {
-      this.hasCastle = pack.burgs[burg].citadel; 
+      this.hasCastle = Boolean(pack.burgs[burg].citadel);
     }
-
-    console.log(this.hasCastle);
-
     this.addHeaders();
     this.addRegiment("attackers", attacker);
     this.addRegiment("defenders", defender);
