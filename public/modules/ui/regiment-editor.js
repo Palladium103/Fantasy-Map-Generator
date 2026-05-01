@@ -28,7 +28,7 @@ function editRegiment(selector) {
   byId("regimentType").addEventListener("click", changeType);
   byId("regimentName").addEventListener("change", changeName);
   byId("regimentEmblemChange").addEventListener("click", changeEmblem);
-  byId("regimentAttack").addEventListener("click", toggleRegimenAttack);
+  byId("regimentAttack").addEventListener("click", toggleRegimentAttack);
   byId("regimentBurgAttack").addEventListener("click", toggleBurgAttack);
   byId("regimentRegenerateLegend").addEventListener("click", regenerateLegend);
   byId("regimentLegend").addEventListener("click", editLegend);
