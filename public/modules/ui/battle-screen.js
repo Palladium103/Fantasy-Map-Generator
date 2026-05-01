@@ -365,42 +365,42 @@ class Battle {
 
       // siege phases
       blockade: {
-        melee: (hasCitadel) ? 0.08 : 0.25,
-        ranged: (hasCitadel) ? 0.20 : 0.25,
-        mounted: (hasCitadel) ? 0.03 : 0.2,
-        machinery: (hasCitadel) ? 0.8 : 0.5,
-        naval: (hasCitadel) ? 0.06 : 0.2,
-        armored: (hasCitadel) ? 0.09 : 0.1,
-        aviation: (hasCitadel) ? 0.25 : 0.25,
-        magical: (hasCitadel) ? 0.025 : 0.25
+        melee: hasCitadel ? 0.08 : 0.25,
+        ranged: hasCitadel ? 0.20 : 0.25,
+        mounted: hasCitadel ? 0.03 : 0.2,
+        machinery: hasCitadel ? 0.8 : 0.5,
+        naval: hasCitadel ? 0.06 : 0.2,
+        armored: hasCitadel ? 0.09 : 0.1,
+        aviation: hasCitadel ? 0.25 : 0.25,
+        magical: hasCitadel ? 0.025 : 0.25
       }, // no active actions
       sheltering: {
-        melee: (hasCitadel) ? 0.4 : 0.3,
-        ranged: (hasCitadel) ? 0.8 : 0.5,
-        mounted: (hasCitadel) ? 0.08 : 0.2,
-        machinery: (hasCitadel) ? 0.6 : 0.5,
-        naval: (hasCitadel) ? 0.01 : 0.2,
-        armored: (hasCitadel) ? 0.1 : 0.1,
-        aviation: (hasCitadel) ? 0.1 : 0.25,
-        magical: (hasCitadel) ? 0.25 : 0.25
+        melee: hasCitadel ? 0.4 : 0.3,
+        ranged: hasCitadel ? 0.8 : 0.5,
+        mounted: hasCitadel ? 0.08 : 0.2,
+        machinery: hasCitadel ? 0.6 : 0.5,
+        naval: hasCitadel ? 0.01 : 0.2,
+        armored: hasCitadel ? 0.1 : 0.1,
+        aviation: hasCitadel ? 0.1 : 0.25,
+        magical: hasCitadel ? 0.25 : 0.25
       }, // no active actions
       sortie: {melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1}, // melee excel
       bombardment: {
-        melee: (hasCitadel) ? 0.1 : 0.2,
-        ranged: (hasCitadel) ? 0.6 : 0.5,
-        mounted: (hasCitadel) ? 0.25 : 0.2,
-        machinery: (hasCitadel) ? 0.4 : 3,
-        naval: (hasCitadel) ? 0.1 : 1,
+        melee: hasCitadel ? 0.1 : 0.2,
+        ranged: hasCitadel ? 0.6 : 0.5,
+        mounted: hasCitadel ? 0.25 : 0.2,
+        machinery: hasCitadel ? 0.4 : 3,
+        naval: hasCitadel ? 0.1 : 1,
         armored: 0.5,
         aviation: 1,
         magical: 1
       }, // machinery excel
       storming: {
-        melee: (hasCitadel) ? 0.8 : 1,
-        ranged: (hasCitadel) ? 0.5 : 0.6,
-        mounted: (hasCitadel) ? 0.3 : 0.5,
-        machinery: (hasCitadel) ? 0.5 : 1,
-        naval: (hasCitadel) ? 0.01 : 0.1,
+        melee: hasCitadel ? 0.8 : 1,
+        ranged: hasCitadel ? 0.5 : 0.6,
+        mounted: hasCitadel ? 0.3 : 0.5,
+        machinery: hasCitadel ? 0.5 : 1,
+        naval: hasCitadel ? 0.01 : 0.1,
         armored: 0.1,
         aviation: 0.5,
         magical: 0.5
