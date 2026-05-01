@@ -29,6 +29,7 @@ function editRegiment(selector) {
   ensureEl("regimentName").addEventListener("change", changeName);
   ensureEl("regimentEmblemChange").addEventListener("click", changeEmblem);
   ensureEl("regimentAttack").addEventListener("click", toggleAttack);
+  ensureEl("regimentBurgAttack").addEventListener("click", toggleBurgAttack);
   ensureEl("regimentRegenerateLegend").addEventListener("click", regenerateLegend);
   ensureEl("regimentLegend").addEventListener("click", editLegend);
   ensureEl("regimentSplit").addEventListener("click", splitRegiment);
@@ -267,9 +268,10 @@ function editRegiment(selector) {
   }
 
   function toggleBurgAttack() {
-    byId("regimentAttack").classList.remove("pressed");
-    byId("regimentBurgAttack").classList.toggle("pressed");
-    if (byId("regimentBurgAttack").classList.contains("pressed")) {
+    console.log("kshafkuegfeg");
+    ensureEl("regimentAttack").classList.remove("pressed");
+    ensureEl("regimentBurgAttack").classList.toggle("pressed");
+    if (ensureEl("regimentBurgAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackBurgOnClick);
       tip("Click on another burg to initiate a siege", true);
       armies.selectAll(":scope > g").classed("draggable", false);

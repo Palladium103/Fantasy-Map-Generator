@@ -728,6 +728,8 @@ class Battle {
     this.updateTable("attackers");
     this.updateTable("defenders");
 
+    console.log(this.defender.phase + " Casualty: " + this.defenders.casualties + " Moral: " + defenders.morale);
+
     // prepare for next iteration
     this.iteration += 1;
     this.selectPhase();
