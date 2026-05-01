@@ -340,7 +340,7 @@ function editRegiment(selector) {
     });
     // Note: could've straight up used 'element' instead of doing this long line
     // but there's lots of bugs when 'element' is used
-    const defendingRegiment = pack.states[target.getAttribute("state")].military[closestRegimentIndex];
+    const defendingRegiment = pack.states[pack.burgs[burgId].state].military[closestRegimentIndex];
 
     if (!attacker.a || !defendingRegiment.a) {
       tip("Regiment has no troops to battle", false, "error");
