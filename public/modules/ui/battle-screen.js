@@ -482,7 +482,6 @@ class Battle {
     const adjuster = Math.max(populationRate / 10, 10); // population adjuster, by default 100
     this[side].power =
       d3.sum(options.military.map(u => (forces[u.name] || 0) * u.power * scheme[phase][u.type])) / adjuster;
-      console.log(scheme.blockade.melee);
     const UIvalue = this[side].power ? Math.max(this[side].power | 0, 1) : 0;
     byId("battlePower_" + side).innerHTML = UIvalue;
   }
