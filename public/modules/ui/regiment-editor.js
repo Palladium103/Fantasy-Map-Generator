@@ -255,6 +255,7 @@ function editRegiment(selector) {
   }
 
   function toggleAttack() {
+    ensureEl("regimentBurgAttack").classList.remove("pressed");
     ensureEl("regimentAttack").classList.toggle("pressed");
     if (ensureEl("regimentAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackRegimentOnClick);
@@ -268,7 +269,6 @@ function editRegiment(selector) {
   }
 
   function toggleBurgAttack() {
-    console.log("kshafkuegfeg");
     ensureEl("regimentAttack").classList.remove("pressed");
     ensureEl("regimentBurgAttack").classList.toggle("pressed");
     if (ensureEl("regimentBurgAttack").classList.contains("pressed")) {
@@ -312,35 +312,36 @@ function editRegiment(selector) {
       tip("Cannot attack fraternal burg", false, "error");
       return;
     }
+    if (pack.states[pack.burgs[burgId].state].military.length == 0) {
+      tip("Burg's state has no military", false, "error");
+      return;
+    }
 
     const attacker = getRegiment();
     const burgStateId = Number(pack.burgs[burgId].state);
     const burgStateRegiments = pack.states[burgStateId].military;
     const defendingBurg = target;
 
-    let closestRegimentIndex = 0;
-    let closestRegiment = -1;
+    const bx = +defendingBurg.getAttribute("x");
+    const by = +defendingBurg.getAttribute("y");
 
-    // Find closest regiment
-    burgStateRegiments.forEach((element, index) => {
-      if (element.t != 0 && element.a) {
-        const defendingRegimentX = element.x;
-        const defendingRegimentY = element.y;
+    let closestIndex = -1;
+    let closestDistance = Infinity;
 
-        const distance = Math.sqrt((defendingRegimentX - defendingBurg.getAttribute("x")) ** 2 + (defendingRegimentY - defendingBurg.getAttribute("y")) ** 2)
+    burgStateRegiments.forEach((el, i) => {
+      if (el.t === 0 || !el.a) return;
 
-        if (closestRegiment == -1) {
-          closestRegiment = distance;
-        }
-        if (closestRegiment > distance) {
-          closestRegiment = distance;
-          closestRegimentIndex = index;
-        }
+      const dx = el.x - bx;
+      const dy = el.y - by;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < closestDistance) {
+        closestDistance = dist;
+        closestIndex = i;
       }
     });
-    // Note: could've straight up used 'element' instead of doing this long line
-    // but there's lots of bugs when 'element' is used
-    const defendingRegiment = pack.states[pack.burgs[burgId].state].military[closestRegimentIndex];
+
+    const defendingRegiment = pack.states[pack.burgs[burgId].state].military[closestIndex];
 
     if (!attacker.a || !defendingRegiment.a) {
       tip("Regiment has no troops to battle", false, "error");
@@ -602,6 +603,7 @@ function editRegiment(selector) {
     armies.selectAll("g>g").call(d3.drag().on("drag", null));
     ensureEl("regimentAdd").classList.remove("pressed");
     ensureEl("regimentAttack").classList.remove("pressed");
+    ensureEl("regimentBurgAttack").classList.remove("pressed");
     ensureEl("regimentAttach").classList.remove("pressed");
     restoreDefaultEvents();
     elSelected = null;

@@ -1,6 +1,5 @@
 "use strict";
 class Battle {
-  
   constructor(attacker, defender, burg = -1) {
     if (customization) return;
     closeDialogs(".stable");
@@ -727,8 +726,6 @@ class Battle {
     // update table values
     this.updateTable("attackers");
     this.updateTable("defenders");
-
-    console.log(this.defender.phase + " Casualty: " + this.defenders.casualties + " Moral: " + defenders.morale);
 
     // prepare for next iteration
     this.iteration += 1;
