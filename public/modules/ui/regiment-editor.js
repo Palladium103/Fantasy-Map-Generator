@@ -299,6 +299,11 @@ function editRegiment(selector) {
       return;
     }
 
+    if (pack.burgs[burgId].type != "Naval" && getRegiment().icon == "🌊") {
+      tip("Burg is too far from sea, regiment cannot engage. Please choose a burg near the shoreline.", false, "error");
+      return;
+    }
+
     if (burgSelected === elSelected) {
       tip("Regiment cannot attack itself", false, "error");
       return;
@@ -355,7 +360,7 @@ function editRegiment(selector) {
       .delay(300)
       .duration(700)
       .ease(d3.easeSinInOut)
-      .on("end", () => new Battle(attacker, defendingRegiment));
+      .on("end", () => new Battle(attacker, defendingRegiment, Number(target.id.replace(/\D/g, ""))));
     svg
       .append("text")
       .attr("text-rendering", "optimizeSpeed")
