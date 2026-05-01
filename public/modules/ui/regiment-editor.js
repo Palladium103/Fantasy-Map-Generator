@@ -341,8 +341,11 @@ function editRegiment(selector) {
       }
     });
 
-    const defendingRegiment = pack.states[pack.burgs[burgId].state].military[closestIndex];
+    if (closestIndex == -1 && pack.states[pack.burgs[burgId].state].military.length == 1)
+      closestIndex = 0;
 
+    const defendingRegiment = pack.states[pack.burgs[burgId].state].military[closestIndex];
+    console.log(pack.states[pack.burgs[burgId].state].military.length);
     if (!attacker.a || !defendingRegiment.a) {
       tip("Regiment has no troops to battle", false, "error");
       return;
