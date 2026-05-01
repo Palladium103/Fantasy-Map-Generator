@@ -1,6 +1,7 @@
 "use strict";
 class Battle {
-  constructor(attacker, defender) {
+  
+  constructor(attacker, defender, burg = -1) {
     if (customization) return;
     closeDialogs(".stable");
     customization = 13; // enter customization to avoid unwanted dialog closing
@@ -12,6 +13,14 @@ class Battle {
     this.cell = findCell(this.x, this.y);
     this.attackers = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
     this.defenders = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
+
+    this.hasCastle = false;
+    if (burg != -1)
+    {
+      this.hasCastle = pack.burgs[burg].citadel; 
+    }
+
+    console.log(this.hasCastle);
 
     this.addHeaders();
     this.addRegiment("attackers", attacker);
@@ -359,56 +368,56 @@ class Battle {
 
       // siege phases
       blockade: {
-        melee: 0.25,
-        ranged: 0.25,
-        mounted: 0.2,
-        machinery: 0.5,
-        naval: 0.2,
-        armored: 0.1,
-        aviation: 0.25,
-        magical: 0.25
+        melee: (this.hasCastle) ? 0.08 : 0.25,
+        ranged: (this.hasCastle) ? 0.20 : 0.25,
+        mounted: (this.hasCastle) ? 0.03 : 0.2,
+        machinery: (this.hasCastle) ? 0.8 : 0.5,
+        naval: (this.hasCastle) ? 0.06 : 0.2,
+        armored: (this.hasCastle) ? 0.09 : 0.1,
+        aviation: (this.hasCastle) ? 0.25 : 0.25,
+        magical: (this.hasCastle) ? 0.025 : 0.25
       }, // no active actions
       sheltering: {
-        melee: 0.3,
-        ranged: 0.5,
-        mounted: 0.2,
-        machinery: 0.5,
-        naval: 0.2,
-        armored: 0.1,
-        aviation: 0.25,
-        magical: 0.25
+        melee: (this.hasCastle) ? 0.4 : 0.3,
+        ranged: (this.hasCastle) ? 0.8 : 0.5,
+        mounted: (this.hasCastle) ? 0.08 : 0.2,
+        machinery: (this.hasCastle) ? 0.6 : 0.5,
+        naval: (this.hasCastle) ? 0.01 : 0.2,
+        armored: (this.hasCastle) ? 0.1 : 0.1,
+        aviation: (this.hasCastle) ? 0.1 : 0.25,
+        magical: (this.hasCastle) ? 0.25 : 0.25
       }, // no active actions
       sortie: { melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1 }, // melee excel
       bombardment: {
-        melee: 0.2,
-        ranged: 0.5,
-        mounted: 0.2,
-        machinery: 3,
-        naval: 1,
-        armored: 0.5,
-        aviation: 1,
-        magical: 1
+        melee: (this.hasCastle) ? 0.1 : 0.2,
+        ranged: (this.hasCastle) ? 0.6 : 0.5,
+        mounted: (this.hasCastle) ? 0.25 : 0.2,
+        machinery: (this.hasCastle) ? 0.4 : 3,
+        naval: (this.hasCastle) ? 0.1 : 1,
+        armored: (this.hasCastle) ? 0.5 : 0.5,
+        aviation: (this.hasCastle) ? 1 : 1,
+        magical: (this.hasCastle) ? 1 : 1
       }, // machinery excel
       storming: {
-        melee: 1,
-        ranged: 0.6,
-        mounted: 0.5,
-        machinery: 1,
-        naval: 0.1,
-        armored: 0.1,
-        aviation: 0.5,
-        magical: 0.5
+        melee: (this.hasCastle) ? 0.8 : 1,
+        ranged: (this.hasCastle) ? 0.5 : 0.6,
+        mounted: (this.hasCastle) ? 0.3 : 0.5,
+        machinery: (this.hasCastle) ? 0.5 : 1,
+        naval: (this.hasCastle) ? 0.01 : 0.1,
+        armored: (this.hasCastle) ? 0.1 : 0.1,
+        aviation: (this.hasCastle) ? 0.5 : 0.5,
+        magical: (this.hasCastle) ? 0.5 : 0.5
       }, // melee excel
       defense: { melee: 2, ranged: 3, mounted: 1, machinery: 1, naval: 0.1, armored: 1, aviation: 0.5, magical: 1 }, // ranged excel
       looting: {
-        melee: 1.6,
-        ranged: 1.6,
-        mounted: 0.5,
-        machinery: 0.2,
-        naval: 0.02,
-        armored: 0.2,
-        aviation: 0.1,
-        magical: 0.3
+        melee: (this.hasCastle) ? 1.6 : 1.6,
+        ranged: (this.hasCastle) ? 1.6 : 1.6,
+        mounted: (this.hasCastle) ? 0.4 : 0.5,
+        machinery: (this.hasCastle) ? 0.1 : 0.2,
+        naval: (this.hasCastle) ? 0.01 : 0.02,
+        armored: (this.hasCastle) ? 0.2 : 0.2,
+        aviation: (this.hasCastle) ? 0.1 : 0.1,
+        magical: (this.hasCastle) ? 0.3 : 0.3
       }, // melee excel
       surrendering: {
         melee: 0.1,
@@ -476,6 +485,7 @@ class Battle {
     const adjuster = Math.max(populationRate / 10, 10); // population adjuster, by default 100
     this[side].power =
       d3.sum(options.military.map(u => (forces[u.name] || 0) * u.power * scheme[phase][u.type])) / adjuster;
+      console.log(scheme.blockade.melee);
     const UIvalue = this[side].power ? Math.max(this[side].power | 0, 1) : 0;
     byId("battlePower_" + side).innerHTML = UIvalue;
   }
