@@ -29,7 +29,7 @@ function editRegiment(selector) {
   byId("regimentName").addEventListener("change", changeName);
   byId("regimentEmblemChange").addEventListener("click", changeEmblem);
   byId("regimentAttack").addEventListener("click", toggleRegimenAttack);
-  byId("burgAttack").addEventListener("click", toggleBurgAttack);
+  byId("regimentBurgAttack").addEventListener("click", toggleBurgAttack);
   byId("regimentRegenerateLegend").addEventListener("click", regenerateLegend);
   byId("regimentLegend").addEventListener("click", editLegend);
   byId("regimentSplit").addEventListener("click", splitRegiment);
