@@ -17,7 +17,7 @@ function editRegiment(selector) {
     title: "Edit Regiment",
     resizable: false,
     close: closeEditor,
-    position: { my: "left top", at: "left+10 top+10", of: "#map" }
+    position: {my: "left top", at: "left+10 top+10", of: "#map"}
   });
 
   if (modules.editRegiment) return;
@@ -117,7 +117,7 @@ function editRegiment(selector) {
     const reg = getRegiment();
 
     d3.event.on("drag", function () {
-      const { x, y } = d3.event;
+      const {x, y} = d3.event;
       const angle = rn(Math.atan2(y - reg.y, x - reg.x) * (180 / Math.PI), 2);
       elSelected.setAttribute("transform", `rotate(${angle})`);
       this.setAttribute("transform", `rotate(${angle})`);
@@ -288,7 +288,6 @@ function editRegiment(selector) {
       burg = burgSelected.parentElement,
       isFraternalBurg = getRegiment().state == target.getAttribute("state");
 
-
     if (String(burg.id) != "burgIcons") {
       tip("Please click on a burg to attack", false, "error");
       return;
@@ -298,12 +297,10 @@ function editRegiment(selector) {
       tip("Please click on a castled burg or a burg that has castle to attack", false, "error");
       return;
     }
-
     if (pack.burgs[burgId].type != "Naval" && getRegiment().n) {
       tip("Burg is too far from sea, regiment cannot engage. Please choose a burg near the shoreline.", false, "error");
       return;
     }
-
     if (burgSelected === elSelected) {
       tip("Regiment cannot attack itself", false, "error");
       return;
@@ -321,7 +318,6 @@ function editRegiment(selector) {
     const burgStateId = Number(pack.burgs[burgId].state);
     const burgStateRegiments = pack.states[burgStateId].military;
     const defendingBurg = target;
-
     const bx = +defendingBurg.getAttribute("x");
     const by = +defendingBurg.getAttribute("y");
 
@@ -364,7 +360,7 @@ function editRegiment(selector) {
       .delay(300)
       .duration(700)
       .ease(d3.easeSinInOut)
-      .on("end", () => new Battle(attacker, defendingRegiment, Number(target.id.replace(/\D/g, ""))));
+      .on("end", () => new Battle(attacker, defendingRegiment));
     svg
       .append("text")
       .attr("text-rendering", "optimizeSpeed")

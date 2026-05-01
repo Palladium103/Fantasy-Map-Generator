@@ -1,6 +1,6 @@
 "use strict";
 class Battle {
-  constructor(attacker, defender, burg = -1) {
+  constructor(attacker, defender) {
     if (customization) return;
     closeDialogs(".stable");
     customization = 13; // enter customization to avoid unwanted dialog closing
@@ -10,11 +10,8 @@ class Battle {
     this.x = defender.x;
     this.y = defender.y;
     this.cell = findCell(this.x, this.y);
-    this.attackers = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
-    this.defenders = { regiments: [], distances: [], morale: 100, casualties: 0, power: 0 };
-
-    this.hasCastle = (burg != -1) ? Boolean(pack.burgs[burg].citadel) : false;
-    this.isSiege = burg != -1;
+    this.attackers = {regiments: [], distances: [], morale: 100, casualties: 0, power: 0};
+    this.defenders = {regiments: [], distances: [], morale: 100, casualties: 0, power: 0};
 
     this.addHeaders();
     this.addRegiment("attackers", attacker);
@@ -67,7 +64,6 @@ class Battle {
   }
 
   defineType() {
-
     const attacker = this.attackers.regiments[0];
     const defender = this.defenders.regiments[0];
     const getType = () => {
@@ -77,7 +73,7 @@ class Battle {
       if (attacker.n && defender.n) return "naval"; // attacker and defender are navals
       if (typesA.every(t => t === "aviation") && typesD.every(t => t === "aviation")) return "air"; // if attackers and defender have only aviation units
       if (attacker.n && !defender.n && typesA.some(t => t !== "naval")) return "landing"; // if attacked is naval with non-naval units and defender is not naval
-      if ((!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls) || this.isSiege) return "siege"; // defender is in walled town
+      if ((!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls) || pack.burgs[pack.cells.burg[this.cell]].citadel) return "siege"; // defender is in walled town
       if (P(0.1) && [5, 6, 7, 8, 9, 12].includes(pack.cells.biome[this.cell])) return "ambush"; // 20% if defenders are in forest or marshes
       return "field";
     };
@@ -160,7 +156,8 @@ class Battle {
       <rect x="0" y="0" width="100%" height="100%" fill="${color}"></rect>${iconHtml}</svg>`;
     const body = `<tbody id="battle${state.i}-${regiment.i}">`;
 
-    let initial = `<tr class="battleInitial"><td>${icon}</td><td class="regiment" data-tip="${regiment.name
+    let initial = `<tr class="battleInitial"><td>${icon}</td><td 
+    class="regiment" data-tip="${regiment.name
       }">${regiment.name.slice(0, 24)}</td>`;
     let casualties = `<tr class="battleCasualties"><td></td><td data-tip="${state.fullName}">${state.fullName.slice(
       0,
@@ -169,16 +166,20 @@ class Battle {
     let survivors = `<tr class="battleSurvivors"><td></td><td data-tip="Supply line length, affects morale">Distance to base: ${distance} ${distanceUnitInput.value}</td>`;
 
     for (const u of options.military) {
-      initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${regiment.u[u.name] || 0
+      initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${
+        regiment.u[u.name] || 0
         }</td>`;
       casualties += `<td data-tip="Casualties" style="width: 2.5em; text-align: center; color: red">0</td>`;
-      survivors += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${regiment.u[u.name] || 0
+      survivors += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${
+        regiment.u[u.name] || 0
         }</td>`;
     }
 
-    initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${regiment.a || 0}</td></tr>`;
+    initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${
+      regiment.a || 0}</td></tr>`;
     casualties += `<td data-tip="Casualties"  style="width: 2.5em; text-align: center; color: red">0</td></tr>`;
-    survivors += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${regiment.a || 0
+    survivors += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${
+      regiment.a || 0
       }</td></tr>`;
 
     const div = side === "attackers" ? battleAttackers : battleDefenders;
@@ -312,6 +313,7 @@ class Battle {
   }
 
   calculateStrength(side) {
+    const hascastle = pack.burgs[pack.cells.burg[this.cell]].citadel;
     const scheme = {
       // field battle phases
       skirmish: {
@@ -324,8 +326,8 @@ class Battle {
         aviation: 1.8,
         magical: 1.8
       }, // ranged excel
-      melee: { melee: 2, ranged: 1.2, mounted: 1.5, machinery: 0.5, naval: 0.2, armored: 2, aviation: 0.8, magical: 0.8 }, // melee excel
-      pursue: { melee: 1, ranged: 1, mounted: 4, machinery: 0.05, naval: 1, armored: 1, aviation: 1.5, magical: 0.6 }, // mounted excel
+      melee: {melee: 2, ranged: 1.2, mounted: 1.5, machinery: 0.5, naval: 0.2, armored: 2, aviation: 0.8, magical: 0.8}, // melee excel
+      pursue: {melee: 1, ranged: 1, mounted: 4, machinery: 0.05, naval: 1, armored: 1, aviation: 1.5, magical: 0.6}, // mounted excel
       retreat: {
         melee: 0.1,
         ranged: 0.01,
@@ -338,7 +340,7 @@ class Battle {
       }, // reduced
 
       // naval battle phases
-      shelling: { melee: 0, ranged: 0.2, mounted: 0, machinery: 2, naval: 2, armored: 0, aviation: 0.1, magical: 0.5 }, // naval and machinery excel
+      shelling: {melee: 0, ranged: 0.2, mounted: 0, machinery: 2, naval: 2, armored: 0, aviation: 0.1, magical: 0.5}, // naval and machinery excel
       boarding: {
         melee: 1,
         ranged: 0.5,
@@ -349,7 +351,7 @@ class Battle {
         aviation: 0,
         magical: 0.2
       }, // melee excel
-      chase: { melee: 0, ranged: 0.15, mounted: 0, machinery: 1, naval: 1, armored: 0, aviation: 0.15, magical: 0.5 }, // reduced
+      chase: {melee: 0, ranged: 0.15, mounted: 0, machinery: 1, naval: 1, armored: 0, aviation: 0.15, magical: 0.5}, // reduced
       withdrawal: {
         melee: 0,
         ranged: 0.02,
@@ -363,56 +365,56 @@ class Battle {
 
       // siege phases
       blockade: {
-        melee: (this.hasCastle) ? 0.08 : 0.25,
-        ranged: (this.hasCastle) ? 0.20 : 0.25,
-        mounted: (this.hasCastle) ? 0.03 : 0.2,
-        machinery: (this.hasCastle) ? 0.8 : 0.5,
-        naval: (this.hasCastle) ? 0.06 : 0.2,
-        armored: (this.hasCastle) ? 0.09 : 0.1,
-        aviation: (this.hasCastle) ? 0.25 : 0.25,
-        magical: (this.hasCastle) ? 0.025 : 0.25
+        melee: (hascastle) ? 0.08 : 0.25,
+        ranged: (hascastle) ? 0.20 : 0.25,
+        mounted: (hascastle) ? 0.03 : 0.2,
+        machinery: (hascastle) ? 0.8 : 0.5,
+        naval: (hascastle) ? 0.06 : 0.2,
+        armored: (hascastle) ? 0.09 : 0.1,
+        aviation: (hascastle) ? 0.25 : 0.25,
+        magical: (hascastle) ? 0.025 : 0.25
       }, // no active actions
       sheltering: {
-        melee: (this.hasCastle) ? 0.4 : 0.3,
-        ranged: (this.hasCastle) ? 0.8 : 0.5,
-        mounted: (this.hasCastle) ? 0.08 : 0.2,
-        machinery: (this.hasCastle) ? 0.6 : 0.5,
-        naval: (this.hasCastle) ? 0.01 : 0.2,
-        armored: (this.hasCastle) ? 0.1 : 0.1,
-        aviation: (this.hasCastle) ? 0.1 : 0.25,
-        magical: (this.hasCastle) ? 0.25 : 0.25
+        melee: (hascastle) ? 0.4 : 0.3,
+        ranged: (hascastle) ? 0.8 : 0.5,
+        mounted: (hascastle) ? 0.08 : 0.2,
+        machinery: (hascastle) ? 0.6 : 0.5,
+        naval: (hascastle) ? 0.01 : 0.2,
+        armored: (hascastle) ? 0.1 : 0.1,
+        aviation: (hascastle) ? 0.1 : 0.25,
+        magical: (hascastle) ? 0.25 : 0.25
       }, // no active actions
-      sortie: { melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1 }, // melee excel
+      sortie: {melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1}, // melee excel
       bombardment: {
-        melee: (this.hasCastle) ? 0.1 : 0.2,
-        ranged: (this.hasCastle) ? 0.6 : 0.5,
-        mounted: (this.hasCastle) ? 0.25 : 0.2,
-        machinery: (this.hasCastle) ? 0.4 : 3,
-        naval: (this.hasCastle) ? 0.1 : 1,
-        armored: (this.hasCastle) ? 0.5 : 0.5,
-        aviation: (this.hasCastle) ? 1 : 1,
-        magical: (this.hasCastle) ? 1 : 1
+        melee: (hascastle) ? 0.1 : 0.2,
+        ranged: (hascastle) ? 0.6 : 0.5,
+        mounted: (hascastle) ? 0.25 : 0.2,
+        machinery: (hascastle) ? 0.4 : 3,
+        naval: (hascastle) ? 0.1 : 1,
+        armored: 0.5,
+        aviation: 1,
+        magical: 1
       }, // machinery excel
       storming: {
-        melee: (this.hasCastle) ? 0.8 : 1,
-        ranged: (this.hasCastle) ? 0.5 : 0.6,
-        mounted: (this.hasCastle) ? 0.3 : 0.5,
-        machinery: (this.hasCastle) ? 0.5 : 1,
-        naval: (this.hasCastle) ? 0.01 : 0.1,
-        armored: (this.hasCastle) ? 0.1 : 0.1,
-        aviation: (this.hasCastle) ? 0.5 : 0.5,
-        magical: (this.hasCastle) ? 0.5 : 0.5
+        melee: (hascastle) ? 0.8 : 1,
+        ranged: (hascastle) ? 0.5 : 0.6,
+        mounted: (hascastle) ? 0.3 : 0.5,
+        machinery: (hascastle) ? 0.5 : 1,
+        naval: (hascastle) ? 0.01 : 0.1,
+        armored: 0.1,
+        aviation: 0.5,
+        magical: 0.5
       }, // melee excel
-      defense: { melee: 2, ranged: 3, mounted: 1, machinery: 1, naval: 0.1, armored: 1, aviation: 0.5, magical: 1 }, // ranged excel
+      defense: {melee: 2, ranged: 3, mounted: 1, machinery: 1, naval: 0.1, armored: 1, aviation: 0.5, magical: 1}, // ranged excel
       looting: {
-        melee: (this.hasCastle) ? 1.6 : 1.6,
-        ranged: (this.hasCastle) ? 1.6 : 1.6,
-        mounted: (this.hasCastle) ? 0.4 : 0.5,
-        machinery: (this.hasCastle) ? 0.1 : 0.2,
-        naval: (this.hasCastle) ? 0.01 : 0.02,
-        armored: (this.hasCastle) ? 0.2 : 0.2,
-        aviation: (this.hasCastle) ? 0.1 : 0.1,
-        magical: (this.hasCastle) ? 0.3 : 0.3
+        melee: 1.6,
+        ranged: 1.6,
+        mounted: 0.5,
+        machinery: 0.2,
+        naval: 0.02,
+        armored: 0.2,
+        aviation: 0.1,
+        magical: 0.3
       }, // melee excel
       surrendering: {
         melee: 0.1,
@@ -426,7 +428,7 @@ class Battle {
       }, // reduced
 
       // ambush phases
-      surprise: { melee: 2, ranged: 2.4, mounted: 1, machinery: 1, naval: 1, armored: 1, aviation: 0.8, magical: 1.2 }, // increased
+      surprise: {melee: 2, ranged: 2.4, mounted: 1, machinery: 1, naval: 1, armored: 1, aviation: 0.8, magical: 1.2}, // increased
       shock: {
         melee: 0.5,
         ranged: 0.5,
@@ -471,8 +473,8 @@ class Battle {
       }, // reduced
 
       // air battle phases
-      maneuvering: { melee: 0, ranged: 0.1, mounted: 0, machinery: 0.2, naval: 0, armored: 0, aviation: 1, magical: 0.2 }, // aviation
-      dogfight: { melee: 0, ranged: 0.1, mounted: 0, machinery: 0.1, naval: 0, armored: 0, aviation: 2, magical: 0.1 } // aviation
+      maneuvering: {melee: 0, ranged: 0.1, mounted: 0, machinery: 0.2, naval: 0, armored: 0, aviation: 1, magical: 0.2}, // aviation
+      dogfight: {melee: 0, ranged: 0.1, mounted: 0, machinery: 0.1, naval: 0, armored: 0, aviation: 2, magical: 0.1} // aviation
     };
 
     const forces = this.getJoinedForces(this[side].regiments);
@@ -836,18 +838,18 @@ class Battle {
           losses === 1
             ? "is destroyed"
             : losses > 0.8
-              ? "is almost completely destroyed"
-              : losses > 0.5
-                ? "suffered terrible losses"
-                : losses > 0.3
-                  ? "suffered severe losses"
-                  : losses > 0.2
-                    ? "suffered heavy losses"
-                    : losses > 0.05
-                      ? "suffered significant losses"
-                      : losses > 0
-                        ? "suffered unsignificant losses"
-                        : "left the battle without loss";
+            ? "is almost completely destroyed"
+            : losses > 0.5
+            ? "suffered terrible losses"
+            : losses > 0.3
+            ? "suffered severe losses"
+            : losses > 0.2
+            ? "suffered heavy losses"
+            : losses > 0.05
+            ? "suffered significant losses"
+            : losses > 0
+            ? "suffered unsignificant losses"
+            : "left the battle without loss";
         const casualties = Object.keys(r.casualties)
           .map(t => (r.casualties[t] ? `${Math.abs(r.casualties[t])} ${t}` : null))
           .filter(c => c);
@@ -866,7 +868,7 @@ class Battle {
     const i = last(pack.markers)?.i + 1 || 0;
     {
       // append battlefield marker
-      const marker = { i, x: this.x, y: this.y, cell: this.cell, icon: "⚔️", type: "battlefields", dy: 52 };
+      const marker = {i, x: this.x, y: this.y, cell: this.cell, icon: "⚔️", type: "battlefields", dy: 52};
       pack.markers.push(marker);
       const markerHTML = drawMarker(marker);
       ensureEl("markers").insertAdjacentHTML("beforeend", markerHTML);
@@ -887,7 +889,7 @@ class Battle {
       \r\nAttackers losses: ${getLosses(this.attackers.casualties)}%, defenders losses: ${getLosses(
       this.defenders.casualties
     )}%`;
-    notes.push({ id: `marker${i}`, name: this.name, legend });
+    notes.push({id: `marker${i}`, name: this.name, legend});
 
     tip(`${this.name} is over. ${result}`, true, "success", 4000);
 
