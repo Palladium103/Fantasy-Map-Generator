@@ -17,7 +17,7 @@ function editRegiment(selector) {
     title: "Edit Regiment",
     resizable: false,
     close: closeEditor,
-    position: {my: "left top", at: "left+10 top+10", of: "#map" }
+    position: { my: "left top", at: "left+10 top+10", of: "#map" }
   });
 
   if (modules.editRegiment) return;
@@ -255,6 +255,7 @@ function editRegiment(selector) {
   }
 
   function toggleRegimenAttack() {
+    byId("burgAttack").classList.remove("pressed");
     byId("regimentAttack").classList.toggle("pressed");
     if (byId("regimentAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackRegimentOnClick);
@@ -268,6 +269,7 @@ function editRegiment(selector) {
   }
 
   function toggleBurgAttack() {
+    byId("regimentAttack").classList.remove("pressed");
     byId("burgAttack").classList.toggle("pressed");
     if (byId("burgAttack").classList.contains("pressed")) {
       viewbox.style("cursor", "crosshair").on("click", attackBurgOnClick);
@@ -284,60 +286,84 @@ function editRegiment(selector) {
     const target = d3.event.target,
       burgSelected = target.parentElement,
       burg = burgSelected.parentElement,
-      fraternalBurg = getRegiment().state == target.getAttribute("state");
+      isFraternalBurg = getRegiment().state == target.getAttribute("state");
 
-    // future changes might replace "icons"
-    //if (String(burg.parentElement.id) != "armies") {
     if (String(burg.id) != "burgIcons") {
-      tip("Please click on a burg to siege", false, "error");
-      //tip(target.getAttribute("state"), false, "error");
+      tip("Please click on a walled or fortified burg to attack", false, "error");
       return;
     }
     if (burgSelected === elSelected) {
       tip("Regiment cannot attack itself", false, "error");
       return;
     }
-    if (fraternalBurg) {
+    if (isFraternalBurg) {
       tip("Cannot attack fraternal burg", false, "error");
       return;
     }
-    /*
-        const attacker = getRegiment();
-        const defender = pack.states[burgSelected.dataset.state].military.find(r => r.i == burgSelected.dataset.id);
-        if (!attacker.a || !defender.a) {
-          tip("Regiment has no troops to battle", false, "error");
-          return;
+
+    const attacker = getRegiment();
+    const burgStateRegiments = pack.states[target.getAttribute("state")].military;
+    const defendingBurg = target;
+
+    let closestRegimentIndex = 0;
+    let closestRegiment = -1;
+
+    // Find closest regiment
+    burgStateRegiments.forEach((element, index) => {
+      if (element.t != 0 && element.a) {
+        const defendingRegimentX = element.x;
+        const defendingRegimentY = element.y;
+
+        const distance = Math.sqrt((defendingRegimentX - defendingBurg.getAttribute("x")) ** 2 + (defendingRegimentY - defendingBurg.getAttribute("y")) ** 2)
+
+        if (closestRegiment == -1) {
+          closestRegiment = distance;
         }
-    
-        // save initial position to temp attribute
-        (attacker.px = attacker.x), (attacker.py = attacker.y);
-        (defender.px = defender.x), (defender.py = defender.y);
-    
-        // move attacker to defender
-        moveRegiment(attacker, defender.x, defender.y - 8);
-    
-        // draw battle icon
-        const attack = d3
-          .transition()
-          .delay(300)
-          .duration(700)
-          .ease(d3.easeSinInOut)
-          .on("end", () => new Battle(attacker, defender));
-        svg
-          .append("text")
-          .attr("text-rendering", "optimizeSpeed")
-          .attr("x", window.innerWidth / 2)
-          .attr("y", window.innerHeight / 2)
-          .text("⚔️")
-          .attr("font-size", 0)
-          .attr("opacity", 1)
-          .style("dominant-baseline", "central")
-          .style("text-anchor", "middle")
-          .transition(attack)
-          .attr("font-size", 1000)
-          .attr("opacity", 0.2)
-          .remove();
-    */
+        if (closestRegiment > distance) {
+          closestRegiment = distance;
+          closestRegimentIndex = index;
+        }
+      }
+    });
+    // Note: could've straight up used 'element' instead of doing this long line
+    // but there's lots of bugs when 'element' is used
+    const defendingRegiment = pack.states[target.getAttribute("state")].military[closestRegimentIndex];
+
+    if (!attacker.a || !defendingRegiment.a) {
+      tip("Regiment has no troops to battle", false, "error");
+      return;
+    }
+
+    // save initial position to temp attribute
+    (attacker.px = attacker.x), (attacker.py = attacker.y);
+    (defendingRegiment.px = defendingRegiment.x), (defendingRegiment.py = defendingRegiment.y);
+
+    // move attacker to burg
+    moveRegiment(attacker, defendingBurg.getAttribute("x"), defendingBurg.getAttribute("y") - 8);
+    // Move defender to burg
+    moveRegiment(defendingRegiment, defendingBurg.getAttribute("x"), defendingBurg.getAttribute("y"));
+    // draw battle icon
+    const attack = d3
+      .transition()
+      .delay(300)
+      .duration(700)
+      .ease(d3.easeSinInOut)
+      .on("end", () => new Battle(attacker, defendingRegiment));
+    svg
+      .append("text")
+      .attr("text-rendering", "optimizeSpeed")
+      .attr("x", window.innerWidth / 2)
+      .attr("y", window.innerHeight / 2)
+      .text("⚔️")
+      .attr("font-size", 0)
+      .attr("opacity", 1)
+      .style("dominant-baseline", "central")
+      .style("text-anchor", "middle")
+      .transition(attack)
+      .attr("font-size", 1000)
+      .attr("opacity", 0.2)
+      .remove();
+
     clearMainTip();
     $("#regimentEditor").dialog("close");
   }
@@ -563,6 +589,7 @@ function editRegiment(selector) {
     armies.selectAll("g>g").call(d3.drag().on("drag", null));
     byId("regimentAdd").classList.remove("pressed");
     byId("regimentAttack").classList.remove("pressed");
+    byId("burgAttack").classList.remove("pressed");
     byId("regimentAttach").classList.remove("pressed");
     restoreDefaultEvents();
     elSelected = null;
