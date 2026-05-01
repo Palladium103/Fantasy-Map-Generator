@@ -386,7 +386,7 @@ class Battle {
       }, // no active actions
       sortie: {melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1}, // melee excel
       bombardment: {
-        melee: hasCitadel ? 0.1 : 0.2,
+        melee: hasCitadel ? 0.3 : 0.2,
         ranged: hasCitadel ? 0.6 : 0.5,
         mounted: hasCitadel ? 0.25 : 0.2,
         machinery: hasCitadel ? 0.4 : 3,
