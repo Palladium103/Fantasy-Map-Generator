@@ -299,7 +299,7 @@ function editRegiment(selector) {
       return;
     }
 
-    if (pack.burgs[burgId].type != "Naval" && getRegiment().icon == "🌊") {
+    if (pack.burgs[burgId].type != "Naval" && getRegiment().n) {
       tip("Burg is too far from sea, regiment cannot engage. Please choose a burg near the shoreline.", false, "error");
       return;
     }
