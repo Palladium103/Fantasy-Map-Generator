@@ -73,7 +73,7 @@ class Battle {
       if (attacker.n && defender.n) return "naval"; // attacker and defender are navals
       if (typesA.every(t => t === "aviation") && typesD.every(t => t === "aviation")) return "air"; // if attackers and defender have only aviation units
       if (attacker.n && !defender.n && typesA.some(t => t !== "naval")) return "landing"; // if attacked is naval with non-naval units and defender is not naval
-      if ((!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls) || pack.burgs[pack.cells.burg[this.cell]].citadel) return "siege"; // defender is in walled town
+      if (!defender.n && pack.burgs[pack.cells.burg[this.cell]].walls || pack.burgs[pack.cells.burg[this.cell]].citadel) return "siege"; // defender is in walled town
       if (P(0.1) && [5, 6, 7, 8, 9, 12].includes(pack.cells.biome[this.cell])) return "ambush"; // 20% if defenders are in forest or marshes
       return "field";
     };
@@ -313,7 +313,7 @@ class Battle {
   }
 
   calculateStrength(side) {
-    const hascastle = pack.burgs[pack.cells.burg[this.cell]].citadel;
+    const hasCitadel = pack.burgs[pack.cells.burg[this.cell]].citadel;
     const scheme = {
       // field battle phases
       skirmish: {
@@ -365,42 +365,42 @@ class Battle {
 
       // siege phases
       blockade: {
-        melee: (hascastle) ? 0.08 : 0.25,
-        ranged: (hascastle) ? 0.20 : 0.25,
-        mounted: (hascastle) ? 0.03 : 0.2,
-        machinery: (hascastle) ? 0.8 : 0.5,
-        naval: (hascastle) ? 0.06 : 0.2,
-        armored: (hascastle) ? 0.09 : 0.1,
-        aviation: (hascastle) ? 0.25 : 0.25,
-        magical: (hascastle) ? 0.025 : 0.25
+        melee: (hasCitadel) ? 0.08 : 0.25,
+        ranged: (hasCitadel) ? 0.20 : 0.25,
+        mounted: (hasCitadel) ? 0.03 : 0.2,
+        machinery: (hasCitadel) ? 0.8 : 0.5,
+        naval: (hasCitadel) ? 0.06 : 0.2,
+        armored: (hasCitadel) ? 0.09 : 0.1,
+        aviation: (hasCitadel) ? 0.25 : 0.25,
+        magical: (hasCitadel) ? 0.025 : 0.25
       }, // no active actions
       sheltering: {
-        melee: (hascastle) ? 0.4 : 0.3,
-        ranged: (hascastle) ? 0.8 : 0.5,
-        mounted: (hascastle) ? 0.08 : 0.2,
-        machinery: (hascastle) ? 0.6 : 0.5,
-        naval: (hascastle) ? 0.01 : 0.2,
-        armored: (hascastle) ? 0.1 : 0.1,
-        aviation: (hascastle) ? 0.1 : 0.25,
-        magical: (hascastle) ? 0.25 : 0.25
+        melee: (hasCitadel) ? 0.4 : 0.3,
+        ranged: (hasCitadel) ? 0.8 : 0.5,
+        mounted: (hasCitadel) ? 0.08 : 0.2,
+        machinery: (hasCitadel) ? 0.6 : 0.5,
+        naval: (hasCitadel) ? 0.01 : 0.2,
+        armored: (hasCitadel) ? 0.1 : 0.1,
+        aviation: (hasCitadel) ? 0.1 : 0.25,
+        magical: (hasCitadel) ? 0.25 : 0.25
       }, // no active actions
       sortie: {melee: 2, ranged: 0.5, mounted: 1.2, machinery: 0.2, naval: 0.1, armored: 0.5, aviation: 1, magical: 1}, // melee excel
       bombardment: {
-        melee: (hascastle) ? 0.1 : 0.2,
-        ranged: (hascastle) ? 0.6 : 0.5,
-        mounted: (hascastle) ? 0.25 : 0.2,
-        machinery: (hascastle) ? 0.4 : 3,
-        naval: (hascastle) ? 0.1 : 1,
+        melee: (hasCitadel) ? 0.1 : 0.2,
+        ranged: (hasCitadel) ? 0.6 : 0.5,
+        mounted: (hasCitadel) ? 0.25 : 0.2,
+        machinery: (hasCitadel) ? 0.4 : 3,
+        naval: (hasCitadel) ? 0.1 : 1,
         armored: 0.5,
         aviation: 1,
         magical: 1
       }, // machinery excel
       storming: {
-        melee: (hascastle) ? 0.8 : 1,
-        ranged: (hascastle) ? 0.5 : 0.6,
-        mounted: (hascastle) ? 0.3 : 0.5,
-        machinery: (hascastle) ? 0.5 : 1,
-        naval: (hascastle) ? 0.01 : 0.1,
+        melee: (hasCitadel) ? 0.8 : 1,
+        ranged: (hasCitadel) ? 0.5 : 0.6,
+        mounted: (hasCitadel) ? 0.3 : 0.5,
+        machinery: (hasCitadel) ? 0.5 : 1,
+        naval: (hasCitadel) ? 0.01 : 0.1,
         armored: 0.1,
         aviation: 0.5,
         magical: 0.5

@@ -285,8 +285,7 @@ function editRegiment(selector) {
   function attackBurgOnClick() {
     const target = d3.event.target,
       burgSelected = target.parentElement,
-      burg = burgSelected.parentElement,
-      isFraternalBurg = getRegiment().state == target.getAttribute("state");
+      burg = burgSelected.parentElement;
 
     if (String(burg.id) != "burgIcons") {
       tip("Please click on a burg to attack", false, "error");
@@ -305,7 +304,7 @@ function editRegiment(selector) {
       tip("Regiment cannot attack itself", false, "error");
       return;
     }
-    if (isFraternalBurg) {
+    if (getRegiment().state == pack.burgs[burgId].state) {
       tip("Cannot attack fraternal burg", false, "error");
       return;
     }
