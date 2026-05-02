@@ -286,12 +286,12 @@ function editRegiment(selector) {
     const target = d3.event.target,
       burgSelected = target.parentElement,
       burg = burgSelected.parentElement;
+    const burgId = target.dataset.id;
 
     if (String(burg.id) != "burgIcons") {
       tip("Please click on a burg to attack", false, "error");
       return;
     }
-    const burgId = Number(target.id.replace(/\D/g, ""));
     if (pack.burgs[burgId].walls != 1 && pack.burgs[burgId].citadel != 1) {
       tip("Please click on a castled burg or a burg that has castle to attack", false, "error");
       return;
