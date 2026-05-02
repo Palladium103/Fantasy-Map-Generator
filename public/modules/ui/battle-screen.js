@@ -12,6 +12,8 @@ class Battle {
     this.cell = findCell(this.x, this.y);
     this.attackers = {regiments: [], distances: [], morale: 100, casualties: 0, power: 0};
     this.defenders = {regiments: [], distances: [], morale: 100, casualties: 0, power: 0};
+    this.phasePerIteration = "";
+    this.prevPhasePerIteration = { d: undefined, a: undefined };
 
     this.addHeaders();
     this.addRegiment("attackers", attacker);
@@ -724,6 +726,12 @@ class Battle {
     this.attackers.morale = Math.max(this.attackers.morale - casualtiesA * 100 - 1, 0);
     this.defenders.morale = Math.max(this.defenders.morale - casualtiesD * 100 - 1, 0);
 
+    // record Phases
+    if (this.prevPhasePerIteration.d != this.defenders.phase || this.prevPhasePerIteration.a != this.attackers.phase) {
+      this.phasePerIteration += `Defender: ${this.defenders.phase}, Attacker: ${this.attackers.phase}<br>`;
+      this.prevPhasePerIteration = { d: this.defenders.phase, a: this.attackers.phase }
+    }
+
     // update table values
     this.updateTable("attackers");
     this.updateTable("defenders");
@@ -888,7 +896,7 @@ class Battle {
     )} and ${getSide(this.defenders.regiments, 0)}. ${result}.
       \r\nAttackers losses: ${getLosses(this.attackers.casualties)}%, defenders losses: ${getLosses(
       this.defenders.casualties
-    )}%`;
+    )}%<p>\n${this.phasePerIteration}</p>`;
     notes.push({id: `marker${i}`, name: this.name, legend});
 
     tip(`${this.name} is over. ${result}`, true, "success", 4000);
