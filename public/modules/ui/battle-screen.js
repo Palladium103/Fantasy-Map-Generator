@@ -85,7 +85,7 @@ class Battle {
   setType() {
     ensureEl("battleType").className = "icon-button-" + this.type;
 
-    const sideSpecific = ensureEl("battlePhases" + this.type + "_attackers");
+    const sideSpecific = ensureEl("battlePhases_" + this.type + "_attackers");
     const attackers = sideSpecific ? sideSpecific.content : ensureEl("battlePhases_" + this.type).content;
     const defenders = sideSpecific ? ensureEl("battlePhases_" + this.type + "_defenders").content : attackers;
 
